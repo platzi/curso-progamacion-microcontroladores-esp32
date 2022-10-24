@@ -1,2 +1,1 @@
-# esp32
-Curso de programación de microcontroladores para Io con ESP32
+# Curso de programación de microcontroladores para IoT con ESP32
