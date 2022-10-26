@@ -1,2 +1,2 @@
-idf_component_register(SRCS "esp32.c"
+idf_component_register(SRCS "chip-info.c"
                     INCLUDE_DIRS ".")
