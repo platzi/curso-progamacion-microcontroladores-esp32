@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SmartLight</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+    <div class="container">
+      <canvas id="input-color" width="320" height="320"></canvas>
+      <div id="color-preview"></div>
+    </div>
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: black;
+        box-sizing: border-box;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 60px;
+      }
+      #input-color {
+        width: 320px;
+        height: 320px;
+        border-radius: 50%;
+      }
+      #color-preview {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 2px solid gray;
+      }
+    </style>
+    <script>
+      const colorPreview = document.getElementById("color-preview");
+
+      const fetchColor = (r, g, b) => {
+        let queryObj = {};
+        if (typeof r !== "undefined") Object.assign(queryObj, { r });
+        if (typeof g !== "undefined") Object.assign(queryObj, { g });
+        if (typeof b !== "undefined") Object.assign(queryObj, { b });
+
+        let queryString = (new URLSearchParams(queryObj)).toString();
+
+        queryString = queryString.length ? `?${queryString}` : "";
+
+        fetch(`/api${queryString}`)
+          .then(res => res.json())
+          .then(({ r, g, b }) => {
+            const rgbColor = `rgb(${r}, ${g}, ${b})`;
+            colorPreview.style.backgroundColor = rgbColor;
+          });
+      }
+
+      fetchColor();
+
+      const inputColor = document.getElementById("input-color");
+      const ctx = inputColor.getContext("2d");
+      
+      const img = new Image();
+      img.addEventListener("load", () => {
+        ctx.drawImage(img, 0, 0, 320, 320);
+      }, false);
+      img.src = "chroma.png";
+
+      const inputColorHandler = function (e) {
+        const mouseX = e.touches[0].clientX - e.touches[0].target.offsetLeft;
+        const mouseY = e.touches[0].clientY - e.touches[0].target.offsetTop;
+        const c = ctx.getImageData(mouseX, mouseY, 1, 1).data;
+        fetchColor(c[0], c[1], c[2]);
+      }
+
+      inputColor.addEventListener("touchstart", inputColorHandler);
+      inputColor.addEventListener("touchmove", inputColorHandler);
+
+      colorPreview.addEventListener("click", () => fetchColor(0, 0, 0));
+      colorPreview.addEventListener("touchstart", () => fetchColor(0, 0, 0));
+    </script>
+  </body>
+</html>
